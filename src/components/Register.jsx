@@ -7,7 +7,6 @@ function Register({ onRegisterSuccess }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,58 +18,60 @@ function Register({ onRegisterSuccess }) {
     setIsLoading(true);
 
     try {
-      // Get existing users from localStorage or initialize an empty array
-      const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+      const response = await fetch('http://localhost:8084/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          password: password
+        }),
+      });
 
-      // Check if user already exists
-      const userExists = existingUsers.some(user => user.email === email || user.username === username);
+      console.log(response);
 
-      if (userExists) {
-        setError('User with this email or username already exists.');
-        setIsLoading(false);
-        return;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Registration failed');
       }
 
-      // Create new user object
-      const newUser = {
-        id: Date.now().toString(),
-        username,
-        email,
-        password,
-        isAdmin
-      };
-
-      // Add new user to the array
-      existingUsers.push(newUser);
-
-      // Save updated users array to localStorage
-      localStorage.setItem('users', JSON.stringify(existingUsers));
-
-      console.log('User registered:', newUser);
-      onRegisterSuccess();
-      
-      if (isAdmin) {
-        navigate('/admin');
+      // Check if the response is JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        const data = await response.json();
+        console.log('User registered:', data);
       } else {
-        navigate('/login');
+        console.log('User registered successfully');
       }
+
+      // Call onRegisterSuccess only if it's a function
+      if (typeof onRegisterSuccess === 'function') {
+        onRegisterSuccess();
+      }
+
+      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
-      setError('An error occurred during registration. Please try again.');
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        setError('Unable to connect to the server. Please check your internet connection or try again later.');
+      } else {
+        setError(error.message || 'An error occurred during registration. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [username, email, password, isAdmin, navigate, onRegisterSuccess]);
+  }, [username, email, password, navigate, onRegisterSuccess]);
 
   const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
   const handleEmailChange = useCallback((e) => setEmail(e.target.value), []);
   const handlePasswordChange = useCallback((e) => setPassword(e.target.value), []);
-  const handleAdminChange = useCallback((e) => setIsAdmin(e.target.checked), []);
   const toggleShowPassword = useCallback(() => setShowPassword(prev => !prev), []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-0 mt-0">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="container mx-auto px-4 py-8">
         <h1 className="text-5xl font-extrabold mb-8 text-center text-primary-600 dark:text-primary-400 leading-tight">
           Join <span className="text-secondary-500 dark:text-secondary-400">QuizMaster</span>
         </h1>
@@ -89,7 +90,7 @@ function Register({ onRegisterSuccess }) {
                 Username
               </label>
               <input
-                className="shadow-sm border-2 border-primary-200 dark:border-primary-100 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
+                className="shadow-sm border-2 border-gray-200 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
                 id="username"
                 type="text"
                 placeholder="Choose a username"
@@ -104,7 +105,7 @@ function Register({ onRegisterSuccess }) {
                 Email
               </label>
               <input
-                className="shadow-sm border-2 border-primary-200 dark:border-primary-700 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
+                className="shadow-sm border-2 border-gray-300 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
                 id="email"
                 type="email"
                 placeholder="Enter your email"
@@ -120,7 +121,7 @@ function Register({ onRegisterSuccess }) {
               </label>
               <div className="relative">
                 <input
-                  className="shadow-sm border-2 border-primary-200 dark:border-primary-700 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent pr-10 dark:bg-gray-700"
+                  className="shadow-sm border-2 border-gray-400 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent pr-10 dark:bg-gray-700"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
@@ -141,18 +142,6 @@ function Register({ onRegisterSuccess }) {
                   )}
                 </button>
               </div>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="isAdmin"
-                type="checkbox"
-                checked={isAdmin}
-                onChange={handleAdminChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="isAdmin" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                Register as Admin
-              </label>
             </div>
             <div className="flex items-center justify-between pt-4">
               <button
@@ -178,7 +167,7 @@ function Register({ onRegisterSuccess }) {
 }
 
 Register.propTypes = {
-  onRegisterSuccess: PropTypes.func.isRequired,
+  onRegisterSuccess: PropTypes.func,
 };
 
 export default Register;

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline';
 
 function Login({ onLoginSuccess }) {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,38 +17,49 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      // Get users from localStorage
-      const users = JSON.parse(localStorage.getItem('users')) || [];
-      const user = users.find(u => u.email === email && u.password === password);
+      const response = await fetch('http://localhost:8084/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          username: username,
+          password: password 
+        }),
+      });
+      console.log(response)
 
-      if (user) {
-        const token = btoa(user.id + ':' + user.email);
-        localStorage.setItem('token', token);
-        localStorage.setItem('username', user.username);
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        if (typeof onLoginSuccess === 'function') {
-          onLoginSuccess(token, user.username);
-        } else {
-          console.error('onLoginSuccess is not a function');
-        }
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
+      if (!response.ok) {
+        throw new Error('Login failed');
       }
+
+      const data = await response.json();
+      const { jwtToken, refreshToken } = data;
+
+      localStorage.setItem('token', jwtToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('username', username);
+
+      if (typeof onLoginSuccess === 'function') {
+        onLoginSuccess(jwtToken, username);
+      } else {
+        console.error('onLoginSuccess is not a function');
+      }
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setError('An error occurred during login. Please try again.');
+      setError('Invalid username or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [email, password, navigate, onLoginSuccess]);
+  }, [username, password, navigate, onLoginSuccess]);
 
-  const handleEmailChange = useCallback((e) => setEmail(e.target.value), []);
+  const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
   const handlePasswordChange = useCallback((e) => setPassword(e.target.value), []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-0 mt-0">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="container mx-auto px-4 py-8">
         <h1 className="text-5xl font-extrabold mb-8 text-center text-primary-600 dark:text-primary-400 leading-tight">
           Welcome to <span className="text-secondary-500 dark:text-secondary-400">QuizMaster</span>
         </h1>
@@ -63,18 +74,18 @@ function Login({ onLoginSuccess }) {
           {error && <p className="text-red-500 dark:text-red-400 text-sm mb-4 text-center" role="alert">{error}</p>}
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="email">
-                Email
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="username">
+                Username
               </label>
               <input
-                className="shadow-sm border-2 border-primary-200 dark:border-primary-700 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={handleEmailChange}
+                className="shadow-sm border-2 border-primary-200 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={handleUsernameChange}
                 required
-                aria-label="Email"
+                aria-label="Username"
               />
             </div>
             <div>
@@ -83,7 +94,7 @@ function Login({ onLoginSuccess }) {
               </label>
               <div className="relative">
                 <input
-                  className="shadow-sm border-2 border-primary-200 dark:border-primary-700 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent pr-10 dark:bg-gray-700"
+                  className="shadow-sm border-2 border-primary-200 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent pr-10 dark:bg-gray-700"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"

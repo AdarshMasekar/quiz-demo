@@ -1,7 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Stats from './components/Stats';
+import DarkModeToggle from './components/DarkModeToggle';
 
 // Lazy load components
 const Home = lazy(() => import('./components/Home'));
@@ -23,9 +24,7 @@ function App() {
     }
   });
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return !!localStorage.getItem('token');
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -38,9 +37,7 @@ function App() {
 
   const toggleDarkMode = () => setDarkMode(prevMode => !prevMode);
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-  };
+  const handleLoginSuccess = () => setIsLoggedIn(true);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -57,12 +54,21 @@ function App() {
     }
   };
 
+  const NavbarWrapper = () => {
+    const location = useLocation();
+    const hideNavbarPaths = ['/register', '/login'];
+    
+    return hideNavbarPaths.includes(location.pathname) ? null : (
+      <div className="sticky top-0 z-50">
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+      </div>
+    );
+  };
+
   return (
     <Router>
-      <div className="min-h-screen transition-colors duration-300">
-        <div className="sticky top-0 z-50">
-          <Navbar darkMode={darkMode} setDarkMode={toggleDarkMode} isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-        </div>
+      <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+        <NavbarWrapper />
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -75,6 +81,7 @@ function App() {
             <Route path="/stats" element={<Stats />} />
           </Routes>
         </Suspense>
+        <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} />
       </div>
     </Router>
   );

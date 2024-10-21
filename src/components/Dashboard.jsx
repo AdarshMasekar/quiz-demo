@@ -23,12 +23,12 @@ const Dashboard = () => {
   }, [navigate]);
 
   const features = [
-    { icon: LightBulbIcon, text: "Diverse range of topics" },
-    { icon: AcademicCapIcon, text: "Adaptive difficulty levels" },
-    { icon: ChartBarIcon, text: "Track your progress" },
-    { icon: UserGroupIcon, text: "Compete with friends" },
-    { icon: BookOpenIcon, text: "Expand your knowledge" },
-    { icon: ClockIcon, text: "Timed challenges" },
+    { icon: LightBulbIcon, text: "Diverse range of topics", color: "text-yellow-500" },
+    { icon: AcademicCapIcon, text: "Adaptive difficulty levels", color: "text-blue-500" },
+    { icon: ChartBarIcon, text: "Track your progress", color: "text-green-500" },
+    { icon: UserGroupIcon, text: "Compete with friends", color: "text-purple-500" },
+    { icon: BookOpenIcon, text: "Expand your knowledge", color: "text-red-500" },
+    { icon: ClockIcon, text: "Timed challenges", color: "text-indigo-500" },
   ];
 
   return (
@@ -71,7 +71,7 @@ const Dashboard = () => {
               const IconComponent = feature.icon;
               return (
                 <div key={index} className="flex items-center space-x-4 p-4 bg-gray-200/50 dark:bg-gray-900/80 rounded-lg">
-                  <IconComponent className="h-8 w-8 text-primary-500" />
+                  <IconComponent className={`h-8 w-8 ${feature.color}`} />
                   <span className="text-lg text-gray-700 dark:text-gray-300">{feature.text}</span>
                 </div>
               );
