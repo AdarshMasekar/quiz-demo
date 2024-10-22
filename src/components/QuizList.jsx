@@ -2,13 +2,6 @@ import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-const defaultQuizCategories = [
-  { id: 1, name: 'General Knowledge', description: 'Test your general knowledge' },
-  { id: 2, name: 'Science', description: 'Explore scientific concepts' },
-  { id: 3, name: 'History', description: 'Journey through historical events' },
-  { id: 4, name: 'Geography', description: 'Discover the world around you' },
-];
-
 const QuizCard = React.memo(({ category, onStartQuiz }) => (
   <div className="bg-gray-200/50 dark:bg-gray-900/80 shadow-md rounded-lg p-6 scale-95 transition-transform duration-300 hover:scale-100">
     <h3 className="text-xl font-bold mb-2">{category.name}</h3>
@@ -36,17 +29,25 @@ function QuizList() {
   const [quizCategories, setQuizCategories] = useState([]);
 
   useEffect(() => {
-    const storedCategories = localStorage.getItem('quizCategories');
-    if (storedCategories) {
-      setQuizCategories(JSON.parse(storedCategories));
-    } else {
-      localStorage.setItem('quizCategories', JSON.stringify(defaultQuizCategories));
-      setQuizCategories(defaultQuizCategories);
-    }
+    const fetchQuizCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:8084/api/quiz-categories');
+        if (!response.ok) {
+          throw new Error('Failed to fetch quiz categories');
+        }
+        const data = await response.json();
+        setQuizCategories(data);
+      } catch (error) {
+        console.error('Error fetching quiz categories:', error);
+        // Optionally, set some error state here to show to the user
+      }
+    };
+
+    fetchQuizCategories();
   }, []);
 
-  const startQuiz = useCallback((quizId) => {
-    navigate(`/quiz/${quizId}`);
+  const startQuiz = useCallback(({category}) => {
+    navigate(`/quiz/${encodeURIComponent(category.name)}`);
   }, [navigate]);
 
   const renderedQuizCards = useMemo(() => 

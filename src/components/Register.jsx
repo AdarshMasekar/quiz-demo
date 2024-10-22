@@ -7,6 +7,7 @@ function Register({ onRegisterSuccess }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('normal');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +19,7 @@ function Register({ onRegisterSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/user/register', {
+      const response = await fetch('http://localhost:8084/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,11 +27,10 @@ function Register({ onRegisterSuccess }) {
         body: JSON.stringify({
           username: username,
           email: email,
-          password: password
+          password: password,
+          role: role
         }),
       });
-
-      console.log(response);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -62,11 +62,12 @@ function Register({ onRegisterSuccess }) {
     } finally {
       setIsLoading(false);
     }
-  }, [username, email, password, navigate, onRegisterSuccess]);
+  }, [username, email, password, role, navigate, onRegisterSuccess]);
 
   const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
   const handleEmailChange = useCallback((e) => setEmail(e.target.value), []);
   const handlePasswordChange = useCallback((e) => setPassword(e.target.value), []);
+  const handleRoleChange = useCallback((e) => setRole(e.target.value), []);
   const toggleShowPassword = useCallback(() => setShowPassword(prev => !prev), []);
 
   return (
@@ -142,6 +143,22 @@ function Register({ onRegisterSuccess }) {
                   )}
                 </button>
               </div>
+            </div>
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="role">
+                Role
+              </label>
+              <select
+                className="shadow-sm border-2 border-gray-300 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
+                id="role"
+                value={role}
+                onChange={handleRoleChange}
+                required
+                aria-label="Role"
+              >
+                <option value="normal">Normal User</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
             <div className="flex items-center justify-between pt-4">
               <button

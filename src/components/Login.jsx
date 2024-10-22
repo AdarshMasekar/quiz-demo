@@ -17,7 +17,7 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/auth/login', {
+      const response = await fetch('http://localhost:8084/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,25 +27,30 @@ function Login({ onLoginSuccess }) {
           password: password 
         }),
       });
-      console.log(response)
 
       if (!response.ok) {
         throw new Error('Login failed');
       }
 
       const data = await response.json();
-      const { jwtToken, refreshToken } = data;
+      const { jwtToken, refreshToken, role } = data;
 
       localStorage.setItem('token', jwtToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('username', username);
+      localStorage.setItem('userRole', role);
 
       if (typeof onLoginSuccess === 'function') {
-        onLoginSuccess(jwtToken, username);
+        onLoginSuccess(jwtToken, username, role);
       } else {
         console.error('onLoginSuccess is not a function');
       }
-      navigate('/dashboard');
+
+      if (role === 'ADMIN') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid username or password. Please try again.');
