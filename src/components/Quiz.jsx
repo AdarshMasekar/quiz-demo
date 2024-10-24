@@ -169,16 +169,22 @@ function Quiz({ timeLimit = 10 }) {
       date: new Date().toISOString()
     };
 
-    // Store quiz result in localStorage using the saveQuizResult function
+    console.log('Saving quiz result:', quizResult); // Debug log
+
+    // Store quiz result in localStorage
     try {
       const pastResults = JSON.parse(localStorage.getItem('quizResults')) || [];
       pastResults.push(quizResult);
       localStorage.setItem('quizResults', JSON.stringify(pastResults));
+      console.log('Saved to localStorage'); // Debug log
     } catch (error) {
       console.error('Error saving quiz result to localStorage:', error);
     }
 
-    navigate(`/result/${id}`, { state: { quizResult } });
+    navigate(`/result/${id}`, { 
+      state: { quizResult },
+      replace: true  // Add replace: true to ensure proper navigation
+    });
   }, [id, quizData, answers, startTime, navigate]);
 
   useEffect(() => {
