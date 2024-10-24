@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Stats from './components/Stats';
 import DarkModeToggle from './components/DarkModeToggle';
 import AdminDashboard from './components/admin_panel/AdminDashboard';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Lazy load components
 const Home = lazy(() => import('./components/Home'));
@@ -87,35 +88,37 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
-        <NavbarWrapper />
-        <Suspense fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
-          </div>
-        }>
-          {isLoading ? (
+    <ThemeProvider>
+      <Router>
+        <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+          <NavbarWrapper />
+          <Suspense fallback={
             <div className="flex items-center justify-center min-h-screen">
               <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
             </div>
-          ) : (
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/quiz/:id" element={<Quiz saveQuizResult={saveQuizResult} />} />
-              <Route path="/result/:id" element={<Result />} />
-              <Route path="/past-results" element={<PastResults />} />
-              <Route path="/stats" element={<Stats />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            </Routes>
-          )}
-        </Suspense>
-        <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} />
-      </div>
-    </Router>
+          }>
+            {isLoading ? (
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
+              </div>
+            ) : (
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/quiz/:id" element={<Quiz saveQuizResult={saveQuizResult} />} />
+                <Route path="/result/:id" element={<Result />} />
+                <Route path="/past-results" element={<PastResults />} />
+                <Route path="/stats" element={<Stats />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              </Routes>
+            )}
+          </Suspense>
+          <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} />
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
