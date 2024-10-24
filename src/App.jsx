@@ -14,6 +14,7 @@ const Dashboard = lazy(() => import('./components/Dashboard'));
 const Quiz = lazy(() => import('./components/Quiz'));
 const Result = lazy(() => import('./components/Result'));
 const PastResults = lazy(() => import('./components/PastResults'));
+const PageNotFound = lazy(() => import('./components/PageNotFound'));
 
 function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -112,6 +113,8 @@ function App() {
                 <Route path="/past-results" element={<PastResults />} />
                 <Route path="/stats" element={<Stats />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                {/* Add this new route at the end */}
+                <Route path="*" element={<PageNotFound />} />
               </Routes>
             )}
           </Suspense>

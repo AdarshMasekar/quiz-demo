@@ -37,15 +37,34 @@ function Stats() {
                         <p>Found {results.length} results</p>
                         {results.map((result, index) => (
                             <div key={index} className="mb-6 p-4 border rounded-lg dark:border-gray-700">
-                                <p className="text-xl mb-2">
-                                    Quiz {result.quizId}
-                                </p>
-                                <p>
-                                    Score: {result.score} / {result.totalQuestions}
-                                </p>
-                                <p>
-                                    Time: {Math.floor(result.timeTaken / 60)}m {result.timeTaken % 60}s
-                                </p>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="text-xl mb-2">
+                                            Quiz {result.quizId}
+                                        </p>
+                                        <p>
+                                            Score: {result.score} / {result.totalQuestions}
+                                        </p>
+                                        <p>
+                                            Time: {Math.floor(result.timeTaken / 60)}m {result.timeTaken % 60}s
+                                        </p>
+                                    </div>
+                                    <button
+                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                        onClick={() => navigate(`/result/${result.quizId}`, { 
+                                            state: { 
+                                                quizResult: result,
+                                                score: result.score,
+                                                totalQuestions: result.totalQuestions,
+                                                timeTaken: result.timeTaken,
+                                                answers: result.answers,
+                                                questions: result.questions
+                                            } 
+                                        })}
+                                    >
+                                        View Details
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
