@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuizList from './QuizList';
-import { LightBulbIcon, AcademicCapIcon, ChartBarIcon, UserGroupIcon, BookOpenIcon, ClockIcon } from '@heroicons/react/outline';
+import { LightBulbIcon, AcademicCapIcon, ChartBarIcon, UserGroupIcon, BookOpenIcon, ClockIcon, PlayIcon } from '@heroicons/react/outline';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,6 +20,10 @@ const Dashboard = () => {
 
   const handleStartNewQuiz = useCallback(() => {
     navigate('/quiz/new');
+  }, [navigate]);
+
+  const handleTakeQuiz = useCallback((quizId) => {
+    navigate(`/quiz/${quizId}`);
   }, [navigate]);
 
   const features = [
@@ -83,7 +87,7 @@ const Dashboard = () => {
           Available Quizzes
         </h2>
         <div className="bg-white dark:bg-gray-800/80 shadow-2xl rounded-lg p-8 ">
-          <QuizList />
+          <QuizList onTakeQuiz={handleTakeQuiz} />
         </div>
       </div>
     </div>

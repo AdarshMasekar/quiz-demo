@@ -17,7 +17,7 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/api/users/login', {
+      const response = await fetch('http://localhost:8084/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function Login({ onLoginSuccess }) {
       if (role === 'ADMIN') {
         navigate('/admin-dashboard');
       } else {
-        navigate('/dashboard');
+        navigate('/admin-dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);

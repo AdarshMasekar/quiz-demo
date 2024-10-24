@@ -7,7 +7,7 @@ function Register({ onRegisterSuccess }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('normal');
+  // const [role, setRole] = useState('normal');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,16 +19,15 @@ function Register({ onRegisterSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/api/users/register', {
+      const response = await fetch('http://localhost:8084/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username: username,
-          email: email,
           password: password,
-          role: role
+          email: email,
         }),
       });
 
@@ -57,17 +56,17 @@ function Register({ onRegisterSuccess }) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         setError('Unable to connect to the server. Please check your internet connection or try again later.');
       } else {
-        setError(error.message || 'An error occurred during registration. Please try again.');
+        setError(`An error occurred during registration: ${error.message}. Please try again.`);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [username, email, password, role, navigate, onRegisterSuccess]);
+  }, [username, email, password, navigate, onRegisterSuccess]); // Removed 'role' from dependencies
 
   const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
   const handleEmailChange = useCallback((e) => setEmail(e.target.value), []);
   const handlePasswordChange = useCallback((e) => setPassword(e.target.value), []);
-  const handleRoleChange = useCallback((e) => setRole(e.target.value), []);
+  // const handleRoleChange = useCallback((e) => setRole(e.target.value), []);
   const toggleShowPassword = useCallback(() => setShowPassword(prev => !prev), []);
 
   return (
@@ -144,6 +143,7 @@ function Register({ onRegisterSuccess }) {
                 </button>
               </div>
             </div>
+            {/* Commented out role selection
             <div>
               <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="role">
                 Role
@@ -160,6 +160,7 @@ function Register({ onRegisterSuccess }) {
                 <option value="admin">Admin</option>
               </select>
             </div>
+            */}
             <div className="flex items-center justify-between pt-4">
               <button
                 className="bg-secondary-500 hover:bg-secondary-600 dark:bg-secondary-600 dark:hover:bg-secondary-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50"

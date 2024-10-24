@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Stats from './components/Stats';
 import DarkModeToggle from './components/DarkModeToggle';
+import AdminDashboard from './components/admin_panel/AdminDashboard';
 
 // Lazy load components
 const Home = lazy(() => import('./components/Home'));
@@ -79,6 +80,7 @@ function App() {
             <Route path="/result/:id" element={<Result />} />
             <Route path="/past-results" element={<PastResults />} />
             <Route path="/stats" element={<Stats />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
           </Routes>
         </Suspense>
         <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} />
