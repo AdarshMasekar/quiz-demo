@@ -4,10 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      // Add any aliases you were using in CRA
-      // '@': '/src',
-    },
+  server: {
+    port: 3000
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: true
+  }
 })
