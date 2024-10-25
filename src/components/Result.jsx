@@ -68,12 +68,6 @@ function Result() {
     });
   }, [navigate]);
 
-  // Add a function to clear results
-  const clearResults = useCallback(() => {
-    localStorage.removeItem('quizResults');
-    console.log('Results cleared from localStorage');
-  }, []);
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 max-w-2xl mx-auto">
@@ -119,12 +113,7 @@ function Result() {
           >
             Back to Dashboard
           </Button>
-          <Button
-            className="bg-red-500 hover:bg-red-700"
-            onClick={clearResults}
-          >
-            Clear All Results
-          </Button>
+        
           <Button
             className="bg-blue-500 hover:bg-blue-700"
             onClick={handleNavigateToPastResults}
