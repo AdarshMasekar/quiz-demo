@@ -17,10 +17,10 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/auth/login', {
+      const response = await fetch('https://my-quiz-backen-production.up.railway.app/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
           username: username,
@@ -35,10 +35,10 @@ function Login({ onLoginSuccess }) {
       const data = await response.json();
       const { jwtToken, refreshToken, role } = data;
 
-      localStorage.setItem('token', jwtToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('username', username);
-      localStorage.setItem('userRole', role);
+      localStorage.setItem('quiz-app-token', jwtToken);
+      localStorage.setItem('quiz-app-refreshToken', refreshToken);
+      localStorage.setItem('quiz-app-username', username);
+      localStorage.setItem('quiz-app-userRole', role);
 
       if (typeof onLoginSuccess === 'function') {
         onLoginSuccess(jwtToken, username, role);
@@ -46,11 +46,7 @@ function Login({ onLoginSuccess }) {
         console.error('onLoginSuccess is not a function');
       }
 
-      if (role === 'ADMIN') {
-        navigate('/admin-dashboard');
-      } else {
-        navigate('/admin-dashboard');
-      }
+      navigate("/dashboard");
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid username or password. Please try again.');
