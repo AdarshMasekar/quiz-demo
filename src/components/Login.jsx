@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline';
+import { setAuthData } from '../utils/auth';
 
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -35,15 +36,10 @@ function Login({ onLoginSuccess }) {
       const data = await response.json();
       const { jwtToken, refreshToken, role } = data;
 
-      localStorage.setItem('quiz-app-token', jwtToken);
-      localStorage.setItem('quiz-app-refreshToken', refreshToken);
-      localStorage.setItem('quiz-app-username', username);
-      localStorage.setItem('quiz-app-userRole', role);
+      setAuthData(jwtToken, refreshToken, username, role);
 
       if (typeof onLoginSuccess === 'function') {
         onLoginSuccess(jwtToken, username, role);
-      } else {
-        console.error('onLoginSuccess is not a function');
       }
 
       navigate("/dashboard");
