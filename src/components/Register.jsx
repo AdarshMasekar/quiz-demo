@@ -18,7 +18,8 @@ function Register({ onRegisterSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://my-quiz-backen-production.up.railway.app/user/register', {
+      const response = await fetch('https://my-quiz-backend-1.onrender.com/user/register', {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

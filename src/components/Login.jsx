@@ -18,7 +18,7 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://my-quiz-backen-production.up.railway.app/auth/login', {
+      const response = await fetch('https://my-quiz-backend-1.onrender.com/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
