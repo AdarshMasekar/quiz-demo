@@ -1,10 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline';
 import { setAuthData } from '../utils/auth';
 
-function Login({ onLoginSuccess }) {
+function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,31 +16,26 @@ function Login({ onLoginSuccess }) {
     setError('');
     setIsLoading(true);
 
+    //sending the user details to backend
     try {
-      const response = await fetch('https://my-quiz-backend-1.onrender.com/auth/login', {
+      const response = await fetch('http://localhost:8081/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
-          username: username,
-          password: password 
+        body: JSON.stringify({
+          username,
+          password
         }),
       });
 
+      // checking the respons
       if (!response.ok) {
         throw new Error('Login failed');
       }
-
       const data = await response.json();
       const { jwtToken, refreshToken, role } = data;
-
       setAuthData(jwtToken, refreshToken, username, role);
-
-      if (typeof onLoginSuccess === 'function') {
-        onLoginSuccess(jwtToken, username, role);
-      }
-
       navigate("/dashboard");
     } catch (error) {
       console.error('Login error:', error);
@@ -49,7 +43,7 @@ function Login({ onLoginSuccess }) {
     } finally {
       setIsLoading(false);
     }
-  }, [username, password, navigate, onLoginSuccess]);
+  }, [username, password, navigate]);
 
   const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
   const handlePasswordChange = useCallback((e) => setPassword(e.target.value), []);
@@ -60,13 +54,13 @@ function Login({ onLoginSuccess }) {
         <h1 className="text-5xl font-extrabold mb-8 text-center text-primary-600 dark:text-primary-400 leading-tight">
           Welcome to <span className="text-secondary-500 dark:text-secondary-400">QuizMaster</span>
         </h1>
-        
+
         <div className="max-w-3xl mx-auto mb-12 text-center">
           <p className="text-xl mb-6 text-gray-700 dark:text-gray-300">
             Sign in to your account and continue your journey of knowledge!
           </p>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-lg p-8 mb-12 max-w-md mx-auto">
           {error && <p className="text-red-500 dark:text-red-400 text-sm mb-4 text-center" role="alert">{error}</p>}
           <form onSubmit={handleLogin} className="space-y-6">
@@ -83,6 +77,7 @@ function Login({ onLoginSuccess }) {
                 onChange={handleUsernameChange}
                 required
                 aria-label="Username"
+                aria-invalid={error ? "true" : "false"}
               />
             </div>
             <div>
@@ -98,7 +93,8 @@ function Login({ onLoginSuccess }) {
                   value={password}
                   onChange={handlePasswordChange}
                   required
-                  aria-label="Password" 
+                  aria-label="Password"
+                  aria-invalid={error ? "true" : "false"}
                 />
                 <button
                   type="button"
@@ -121,7 +117,17 @@ function Login({ onLoginSuccess }) {
                 disabled={isLoading}
                 aria-busy={isLoading}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? (
+                  <span className="flex justify-center items-center">
+                    <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity=".25" strokeWidth="4" />
+                      <path d="M4 12a8 8 0 1 1 16 0a8 8 0 0 1-16 0z" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
+                    </svg>
+                    Signing In...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
               </button>
               <Link
                 to="/register"
@@ -136,9 +142,5 @@ function Login({ onLoginSuccess }) {
     </div>
   );
 }
-
-Login.propTypes = {
-  onLoginSuccess: PropTypes.func.isRequired,
-};
 
 export default React.memo(Login);

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function PageNotFound() {
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="text-center">
@@ -12,7 +13,7 @@ function PageNotFound() {
           Oops! Looks like you've ventured into unknown territory.
         </p>
         <Link
-          to="/"
+          to="/dashboard"
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
                      transition-all duration-300 transform hover:scale-105 
                      hover:shadow-lg inline-flex items-center space-x-2"

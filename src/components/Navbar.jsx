@@ -1,28 +1,27 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { UserIcon } from '@heroicons/react/outline'; // Import the user icon
+import { clearAuthData, getAuthData, isAuthenticated } from '../utils/auth';
 
-const Navbar = React.memo(({ isLoggedIn, onLogout }) => {
-  const [username, setUsername] = useState('');
+const Navbar = React.memo(() => {
+  const { username } = getAuthData();
+  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
   const navigate = useNavigate();
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    onLogout();
+    clearAuthData();
+    setIsLoggedIn(false);
     navigate('/');
-  }, [onLogout, navigate]);
+  }, [navigate]);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      const storedUsername = localStorage.getItem('quiz-app-username');
-      if (storedUsername) {
-        setUsername(storedUsername);
-      }
-    } else {
-      setUsername('');
-    }
-  }, [isLoggedIn]);
+    const syncAuthState = () => setIsLoggedIn(isAuthenticated());
+
+    window.addEventListener('storage', syncAuthState);
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+    };
+  }, []);
 
   return (
     <nav className="bg-gradient-to-r from-primary-100 to-secondary-100 dark:from-gray-800 dark:to-gray-900 text-primary-900 dark:text-primary-100 backdrop-blur-sm p-4 transition-colors duration-300 shadow-md">
@@ -33,8 +32,25 @@ const Navbar = React.memo(({ isLoggedIn, onLogout }) => {
             <>
               <Link to="/dashboard" className="hover:text-secondary-500 transition-colors duration-300">Dashboard</Link>
               <Link to="/stats" className="hover:text-secondary-500 transition-colors duration-300">View Stats</Link>
-              {username && <span className="text-primary-700 dark:text-primary-300">Welcome, {username}</span>}
-              <button onClick={handleLogout} className="hover:text-secondary-500 transition-colors duration-300">Logout</button>
+              <div className="relative group flex items-center space-x-2 cursor-pointer">
+                {/* User Icon and Username */}
+                <UserIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                {username && (
+                  <span className="text-red-800 dark:text-primary-600">{username.charAt(0).toUpperCase() + username.slice(1)}</span>
+                )}
+
+                {/* Logout button styled as a card */}
+                <div
+                  className="absolute left-0 top-3 mt-8 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                >
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-center text-primary-600 dark:text-primary-400 hover:text-secondary-500"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
             </>
           ) : (
             <>
@@ -47,11 +63,6 @@ const Navbar = React.memo(({ isLoggedIn, onLogout }) => {
     </nav>
   );
 });
-
-Navbar.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
-  onLogout: PropTypes.func.isRequired,
-};
 
 Navbar.displayName = 'Navbar';
 

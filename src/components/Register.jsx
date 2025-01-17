@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline';
 
-function Register({ onRegisterSuccess }) {
+function Register() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,8 +17,7 @@ function Register({ onRegisterSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://my-quiz-backend-1.onrender.com/user/register', {
-
+      const response = await fetch('http://localhost:8081/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,11 +26,10 @@ function Register({ onRegisterSuccess }) {
           username: username,
           password: password,
           email: email,
-        }),
-    
+        }),
+
       });
 
-      console.log(response);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || 'Registration failed');
@@ -47,11 +44,6 @@ function Register({ onRegisterSuccess }) {
         console.log('User registered successfully');
       }
 
-      // Call onRegisterSuccess only if it's a function
-      if (typeof onRegisterSuccess === 'function') {
-        onRegisterSuccess();
-      }
-
       navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
@@ -63,12 +55,11 @@ function Register({ onRegisterSuccess }) {
     } finally {
       setIsLoading(false);
     }
-  }, [username, email, password, navigate, onRegisterSuccess]); // Removed 'role' from dependencies
+  }, [username, email, password, navigate]);
 
   const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
   const handleEmailChange = useCallback((e) => setEmail(e.target.value), []);
   const handlePasswordChange = useCallback((e) => setPassword(e.target.value), []);
-  // const handleRoleChange = useCallback((e) => setRole(e.target.value), []);
   const toggleShowPassword = useCallback(() => setShowPassword(prev => !prev), []);
 
   return (
@@ -77,13 +68,13 @@ function Register({ onRegisterSuccess }) {
         <h1 className="text-5xl font-extrabold mb-8 text-center text-primary-600 dark:text-primary-400 leading-tight">
           Join <span className="text-secondary-500 dark:text-secondary-400">QuizMaster</span>
         </h1>
-        
+
         <div className="max-w-3xl mx-auto mb-12 text-center">
           <p className="text-xl mb-6 text-gray-700 dark:text-gray-300">
             Create your account and start your journey of knowledge!
           </p>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-lg p-8 mb-12 max-w-md mx-auto">
           {error && <p className="text-red-500 dark:text-red-400 text-sm mb-4 text-center" role="alert">{error}</p>}
           <form onSubmit={handleRegister} className="space-y-6">
@@ -145,24 +136,6 @@ function Register({ onRegisterSuccess }) {
                 </button>
               </div>
             </div>
-            {/* Commented out role selection
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="role">
-                Role
-              </label>
-              <select
-                className="shadow-sm border-2 border-gray-300 dark:border-gray-600 rounded-md w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent dark:bg-gray-700"
-                id="role"
-                value={role}
-                onChange={handleRoleChange}
-                required
-                aria-label="Role"
-              >
-                <option value="normal">Normal User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            */}
             <div className="flex items-center justify-between pt-4">
               <button
                 className="bg-secondary-500 hover:bg-secondary-600 dark:bg-secondary-600 dark:hover:bg-secondary-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50"
@@ -186,8 +159,5 @@ function Register({ onRegisterSuccess }) {
   );
 }
 
-Register.propTypes = {
-  onRegisterSuccess: PropTypes.func,
-};
 
 export default Register;

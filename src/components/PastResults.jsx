@@ -1,84 +1,78 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuthData } from '../utils/auth';
 
-function PastResults() {
+const PastResults = () => {
   const navigate = useNavigate();
   const [pastResults, setPastResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true); // To handle loading state
+  const { username } = getAuthData();
 
   useEffect(() => {
-    const fetchPastResults = () => {
-      try {
-        const storedResults = localStorage.getItem('pastResults');
-        if (storedResults) {
-          setPastResults(JSON.parse(storedResults));
-        } else {
-          setPastResults([]);
-        }
-      } catch (err) {
-        console.error('Error fetching past results:', err);
-        setError('Failed to load past results. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (!username) {
+      // Redirect to login if no username is found
+      navigate('/login');
+      return;
+    }
 
-    fetchPastResults();
-  }, []);
+    try {
+      const storedResults = JSON.parse(localStorage.getItem(`quizResults${username}`)) || [];
+      setPastResults(storedResults);
+    } catch (error) {
+      console.error('Error fetching past results:', error);
+    } finally {
+      setLoading(false); // Turn off loading after fetching
+    }
+  }, [username, navigate]);
 
-  const handleNavigateToDashboard = useCallback(() => {
+  const handleBackToDashboard = () => {
     navigate('/dashboard');
-  }, [navigate]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-3xl font-bold mb-6 text-red-500">{error}</h1>
-        <button
-          className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105"
-          onClick={handleNavigateToDashboard}
-        >
-          Back to Dashboard
-        </button>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-center text-primary-600 dark:text-primary-400">Past Quiz Results</h1>
-      {pastResults.length === 0 ? (
-        <p className="text-center text-lg mb-6">You haven't taken any quizzes yet. Start a new quiz to see your results here!</p>
-      ) : (
-        <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
-          {pastResults.map((result) => (
-            <div key={result.id} className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6 transition-all duration-300 hover:shadow-2xl">
-              <h3 className="text-2xl font-bold mb-3 text-primary-600 dark:text-primary-400">{result.quizName}</h3>
-              <p className="mb-2 text-lg">Score: <span className="font-semibold">{result.score} / {result.totalQuestions}</span></p>
-              <p className="text-gray-600 dark:text-gray-400">Date: {new Date(result.date).toLocaleDateString()}</p>
-            </div>
-          ))}
+    <div className="min-h-screen bg-white dark:bg-gray-900 pt-0 mt-0">
+      <div className="container mx-auto px-4">
+        <h1 className="text-5xl font-extrabold mb-8 text-center text-primary-600 dark:text-primary-400 leading-tight">
+          Past Results
+        </h1>
+
+        {loading ? (
+          <div className="text-center text-xl text-gray-700 dark:text-gray-300">Loading...</div>
+        ) : pastResults.length === 0 ? (
+          <div className="text-center text-xl text-gray-700 dark:text-gray-300">
+            You have no past results.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {pastResults.map((result, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 className="text-2xl font-semibold text-primary-600 dark:text-primary-400">{result.quizTitle}</h3>
+                <p className="text-lg text-gray-700 dark:text-gray-300">Score: {result.score}/100</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Time Taken: {Math.floor(result.timeTaken / 60)}:{result.timeTaken % 60} min</p>
+                <div className="mt-4">
+                  <button
+                    className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600"
+                    onClick={() => navigate(`/result/${result.quizId}`, { state: { quizResult: result } })}
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-8 text-center">
+          <button
+            className="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600"
+            onClick={handleBackToDashboard}
+          >
+            Back to Dashboard
+          </button>
         </div>
-      )}
-      <div className="text-center">
-        <button
-          className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105"
-          onClick={handleNavigateToDashboard}
-        >
-          Back to Dashboard
-        </button>
       </div>
     </div>
   );
-}
+};
 
 export default PastResults;
