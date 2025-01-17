@@ -79,7 +79,7 @@ const AdminDashboard = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8081/api/quizzes/create",
+        "https://my-quiz-backend-1.onrender.com/api/quizzes/create",
         quizData,
         {
           headers: {

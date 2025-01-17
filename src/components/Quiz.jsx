@@ -52,7 +52,7 @@ function Quiz() {
     const fetchQuiz = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8081/api/quizzes/${id}`, {
+        const response = await axios.get(`https://my-quiz-backend-1.onrender.com/api/quizzes/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const fetchedQuiz = response.data;

@@ -42,7 +42,7 @@ function QuizList() {
   useEffect(() => {
     const fetchQuizCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/api/quizzes/all', {
+        const response = await axios.get('https://my-quiz-backend-1.onrender.com/api/quizzes/all', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
