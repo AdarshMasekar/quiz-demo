@@ -15,7 +15,7 @@ const Navbar = React.memo(({ isLoggedIn, onLogout }) => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const storedUsername = localStorage.getItem('username');
+      const storedUsername = localStorage.getItem('quiz-app-username');
       if (storedUsername) {
         setUsername(storedUsername);
       }

@@ -7,7 +7,6 @@ function Register({ onRegisterSuccess }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // const [role, setRole] = useState('normal');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +19,7 @@ function Register({ onRegisterSuccess }) {
 
     try {
       const response = await fetch('https://my-quiz-backend-1.onrender.com/user/register', {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,9 +28,11 @@ function Register({ onRegisterSuccess }) {
           username: username,
           password: password,
           email: email,
-        }),
+        }),
+    
       });
 
+      console.log(response);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || 'Registration failed');

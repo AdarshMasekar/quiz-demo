@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { EyeIcon, EyeOffIcon } from '@heroicons/react/outline';
+import { setAuthData } from '../utils/auth';
 
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -20,7 +21,7 @@ function Login({ onLoginSuccess }) {
       const response = await fetch('https://my-quiz-backend-1.onrender.com/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
           username: username,
@@ -35,22 +36,13 @@ function Login({ onLoginSuccess }) {
       const data = await response.json();
       const { jwtToken, refreshToken, role } = data;
 
-      localStorage.setItem('token', jwtToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('username', username);
-      localStorage.setItem('userRole', role);
+      setAuthData(jwtToken, refreshToken, username, role);
 
       if (typeof onLoginSuccess === 'function') {
         onLoginSuccess(jwtToken, username, role);
-      } else {
-        console.error('onLoginSuccess is not a function');
       }
 
-      if (role === 'ADMIN') {
-        navigate('/admin-dashboard');
-      } else {
-        navigate('/admin-dashboard');
-      }
+      navigate("/dashboard");
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid username or password. Please try again.');

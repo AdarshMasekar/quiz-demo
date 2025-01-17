@@ -5,6 +5,7 @@ import Stats from './components/Stats';
 import DarkModeToggle from './components/DarkModeToggle';
 import AdminDashboard from './components/admin_panel/AdminDashboard';
 import { ThemeProvider } from './context/ThemeContext';
+import { isAuthenticated } from './utils/auth';
 
 // Lazy load components
 const Home = lazy(() => import('./components/Home'));
@@ -29,8 +30,9 @@ function App() {
 
   // Update token handling to be more secure
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const token = localStorage.getItem('token');
-    return token && token !== 'undefined' && token !== 'null';
+    const token = localStorage.getItem('quiz-app-token');
+    const username = localStorage.getItem('quiz-app-username');
+    return !!(token && username);
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -55,8 +57,9 @@ function App() {
   const handleLoginSuccess = () => setIsLoggedIn(true);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('quiz-app-token');
     setIsLoggedIn(false);
+    navigate("/");
   };
 
   // Update quiz result handling for better error management
@@ -73,7 +76,6 @@ function App() {
       localStorage.setItem('quizResults', JSON.stringify(pastResults));
     } catch (error) {
       console.error('Error saving quiz result:', error);
-      // Consider adding user notification here
     }
   };
 
@@ -87,6 +89,23 @@ function App() {
       </div>
     );
   };
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const isUserAuthenticated = isAuthenticated();
+      setIsLoggedIn(isUserAuthenticated);
+    };
+
+    // Check auth status on mount
+    checkAuth();
+
+    // Add event listener for storage changes
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
 
   return (
     <ThemeProvider>
@@ -113,7 +132,6 @@ function App() {
                 <Route path="/past-results" element={<PastResults />} />
                 <Route path="/stats" element={<Stats />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                {/* Add this new route at the end */}
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             )}
