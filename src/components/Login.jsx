@@ -18,7 +18,7 @@ function Login() {
 
     //sending the user details to backend
     try {
-      const response = await fetch('http://localhost:8081/auth/login', {
+      const response = await fetch('https://my-quiz-backend-1.onrender.com/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
